@@ -1,0 +1,14 @@
+name: Deploy Dashboard
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Deploy Dashboard
+        run: bash ~/projects/car-dash/deploy-dash.sh
