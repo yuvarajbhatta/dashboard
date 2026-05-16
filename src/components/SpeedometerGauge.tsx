@@ -4,7 +4,7 @@ import { speedLabel, speedFromMps } from '../lib/format';
 import type { UnitSystem } from '../types/telemetry';
 
 const labels = [0, 40, 80, 120, 160, 200, 240];
-const startAngle = 135;
+const startAngle = 225;
 const sweep = 270;
 
 function polar(angle: number, radius: number) {
@@ -41,8 +41,8 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
               <stop offset="1" stopColor="#fb345c" />
             </linearGradient>
           </defs>
-          <circle cx="180" cy="180" r="143" fill="none" stroke="rgba(148,163,184,0.16)" strokeWidth="16" pathLength="100" strokeDasharray="75 100" strokeDashoffset="-12.5" transform="rotate(135 180 180)" />
-          <circle cx="180" cy="180" r="143" fill="none" stroke="url(#speedArcGradient)" strokeWidth="16" pathLength="100" strokeDasharray={`${progress * 0.75} 100`} strokeDashoffset="-12.5" strokeLinecap="round" transform="rotate(135 180 180)" filter="url(#speedGlow)" />
+          <circle cx="180" cy="180" r="143" fill="none" stroke="rgba(148,163,184,0.16)" strokeWidth="16" pathLength="100" strokeDasharray="75 100" strokeDashoffset="-62.5" transform="rotate(-45 180 180)" />
+          <circle cx="180" cy="180" r="143" fill="none" stroke="url(#speedArcGradient)" strokeWidth="16" pathLength="100" strokeDasharray={`${progress * 0.75} 100`} strokeDashoffset="-62.5" strokeLinecap="round" transform="rotate(-45 180 180)" filter="url(#speedGlow)" />
           {Array.from({ length: 37 }, (_, index) => {
             const angle = startAngle + (index / 36) * sweep;
             const outer = polar(angle, 158);
@@ -57,7 +57,7 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
               </text>
             );
           })}
-          <motion.g animate={{ rotate: needleAngle - 180 }} transition={{ type: 'spring', stiffness: 95, damping: 18 }} style={{ transformOrigin: '180px 180px' }}>
+          <motion.g animate={{ rotate: needleAngle }} transition={{ type: 'spring', stiffness: 95, damping: 18 }} style={{ transformOrigin: '180px 180px' }}>
             <path d="M180 178 L180 72" stroke="#f8fafc" strokeWidth="4" strokeLinecap="round" filter="url(#speedGlow)" />
             <path d="M180 178 L180 102" stroke="#22d3ee" strokeWidth="9" strokeLinecap="round" opacity="0.42" />
           </motion.g>

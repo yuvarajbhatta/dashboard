@@ -495,7 +495,7 @@ button {
   display: grid;
   width: min(48rem, calc(100vw - 1.5rem));
   transform: translateX(-50%);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 0.45rem;
   border: 1px solid rgba(148, 163, 184, 0.16);
   border-radius: 14px;
@@ -547,6 +547,18 @@ button {
 
 .speed-zone { grid-area: speed; }
 .compass-zone { grid-area: compass; }
+.force-graphs-zone {
+  grid-area: forcegraphs;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+.trip-cards-zone {
+  grid-area: tripcards;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.75rem;
+}
 .gyro-zone { grid-area: gyro; }
 .trip-strip {
   grid-area: trip;
@@ -568,6 +580,52 @@ button {
   grid-area: bottom;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.dashboard-tab-layout {
+  grid-template-columns: minmax(21rem, 1fr) minmax(23rem, 1.28fr) minmax(20rem, 1fr);
+  grid-template-rows: minmax(12rem, 1fr) minmax(10rem, 0.82fr);
+  grid-template-areas:
+    "forcegraphs speed compass"
+    "tripcards speed compass";
+}
+
+.tab-page-layout {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-rows: minmax(7rem, 0.55fr) minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "metrics metrics metrics metrics"
+    "speedgraph speedgraph speedgraph speedgraph"
+    "accelgraph accelgraph accelgraph accelgraph";
+}
+
+.performance-metrics {
+  grid-area: metrics;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.75rem;
+}
+
+.performance-speed-graph { grid-area: speedgraph; }
+.performance-accel-graph { grid-area: accelgraph; }
+
+.safety-page-zone {
+  grid-column: 1 / -1;
+  grid-row: 1 / -1;
+  display: grid;
+  min-height: 0;
+  grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr);
+  gap: 0.75rem;
+}
+
+.safety-page-zone .safety-gauge-panel {
+  min-height: 0;
+}
+
+.safety-trip-metrics {
+  display: grid;
+  min-height: 0;
   gap: 0.75rem;
 }
 
@@ -618,6 +676,48 @@ button {
 
 .mini-metric {
   padding: 0.8rem;
+}
+
+.force-graph-card {
+  padding: 0.75rem;
+}
+
+.force-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+}
+
+.force-card-icon {
+  display: inline-grid;
+  place-items: center;
+}
+
+.force-card-value {
+  color: #f8fafc;
+  font-family: var(--font-mono);
+  font-size: 1.3rem;
+  font-weight: 950;
+  line-height: 1;
+}
+
+.force-card-value span {
+  color: #94a3b8;
+  font-size: 0.7rem;
+  font-weight: 900;
+}
+
+.force-live-label {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0.42rem;
+  color: #cbd5e1;
+  font-size: 0.64rem;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-align: center;
 }
 
 .speedometer-panel {
@@ -736,6 +836,17 @@ button {
   display: grid;
   place-content: center;
   text-align: center;
+}
+
+.compass-center .text-4xl {
+  font-size: 1.15rem;
+  color: #cbd5e1;
+}
+
+.compass-center .text-2xl {
+  margin-top: 0.15rem;
+  font-size: 2.2rem;
+  color: #f8fafc;
 }
 
 .heading-strip {
@@ -1136,6 +1247,23 @@ button {
   text-transform: uppercase;
 }
 
+.home-screen-panel {
+  margin-top: 0.9rem;
+  border: 1px solid rgba(125, 211, 252, 0.2);
+  border-radius: 10px;
+  padding: 0.8rem;
+  background: rgba(2, 6, 23, 0.46);
+}
+
+.home-screen-panel ol {
+  margin: 0.65rem 0 0;
+  padding-left: 1.2rem;
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
+
 .sensor-debug-view {
   position: relative;
   z-index: 2;
@@ -1468,6 +1596,135 @@ button {
 
   .debug-row {
     padding: 0.3rem 0.4rem;
+  }
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .cockpit-shell {
+    padding: calc(2.15rem + env(safe-area-inset-top)) 0 calc(3.8rem + env(safe-area-inset-bottom));
+  }
+
+  .top-status-bar {
+    height: 2.15rem;
+  }
+
+  .drive-mode-indicator {
+    gap: 0.4rem;
+    font-size: 0.58rem;
+    letter-spacing: 0.14em;
+  }
+
+  .real-sensor-mode,
+  .no-sensor-mode {
+    padding: 0.12rem 0.34rem;
+    font-size: 0.48rem;
+  }
+
+  .status-time {
+    display: block;
+    font-size: 0.82rem;
+  }
+
+  .status-icon-button {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+
+  .dashboard-tab-layout {
+    width: calc(100dvw - 0.65rem);
+    height: calc(100dvh - 6rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    grid-template-columns: minmax(17rem, 1fr) minmax(17.5rem, 1.04fr) minmax(17rem, 1fr);
+    grid-template-rows: minmax(0, 1.18fr) minmax(0, 0.82fr);
+    grid-template-areas:
+      "forcegraphs speed compass"
+      "tripcards speed compass";
+    gap: 0.42rem;
+  }
+
+  .tab-page-layout {
+    width: calc(100dvw - 0.65rem);
+    height: calc(100dvh - 6rem - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-rows: minmax(0, 0.72fr) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "metrics metrics metrics metrics"
+      "speedgraph speedgraph speedgraph speedgraph"
+      "accelgraph accelgraph accelgraph accelgraph";
+    gap: 0.42rem;
+  }
+
+  .force-graphs-zone,
+  .trip-cards-zone,
+  .performance-metrics,
+  .safety-page-zone,
+  .safety-trip-metrics {
+    gap: 0.42rem;
+  }
+
+  .force-graph-card {
+    padding: 0.45rem;
+  }
+
+  .force-card-value {
+    font-size: 1.05rem;
+  }
+
+  .force-live-label {
+    bottom: 0.25rem;
+    font-size: 0.52rem;
+  }
+
+  .speedometer-shell {
+    width: min(100%, 17.8rem);
+  }
+
+  .speed-unit {
+    margin-top: 0.24rem;
+    font-size: 0.68rem;
+  }
+
+  .compass-panel {
+    align-content: center;
+  }
+
+  .compass-ring {
+    width: min(13rem, 100%);
+  }
+
+  .compass-center .text-4xl {
+    font-size: 0.88rem;
+  }
+
+  .compass-center .text-2xl {
+    font-size: 1.9rem;
+  }
+
+  .compass-arrow {
+    top: 1.25rem;
+    transform-origin: 50% 4.85rem;
+  }
+
+  .heading-strip {
+    width: min(13rem, 100%);
+  }
+
+  .trip-cards-zone .mini-metric .font-mono {
+    font-size: 1.5rem;
+  }
+
+  .trip-cards-zone .metric-unit {
+    display: block;
+    max-width: 100%;
+    font-size: 0.52rem;
+    overflow-wrap: anywhere;
+  }
+
+  .bottom-nav {
+    width: min(42rem, calc(100dvw - 0.75rem));
+  }
+
+  .nav-button {
+    min-height: 2.55rem;
   }
 }
 

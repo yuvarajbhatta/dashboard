@@ -1,23 +1,19 @@
 import { Suspense, lazy, useEffect, useState } from 'react';
-import { Activity, ArrowDown, ArrowLeftRight, ArrowUp, Clock3, Gauge, MapPinned, Route } from 'lucide-react';
+import { ArrowDown, ArrowLeftRight, ArrowUp, Clock3, Gauge, Rotate3D, Route } from 'lucide-react';
+import { format } from 'date-fns';
 import { motion } from 'framer-motion';
-import { AccelerationPanel } from '../components/AccelerationPanel';
 import { BottomNav, type NavTab } from '../components/BottomNav';
 import { CompassGauge } from '../components/CompassGauge';
+import { ForceGraphCard } from '../components/ForceGraphCard';
 import { MiniMetricCard } from '../components/MiniMetricCard';
 import { SafetyScoreGauge } from '../components/SafetyScoreGauge';
-import { SensorDebugView } from '../components/SensorDebugView';
-import { SensorStatusPanel } from '../components/SensorStatusPanel';
 import { SettingsModal } from '../components/SettingsModal';
 import { SpeedometerGauge } from '../components/SpeedometerGauge';
 import { StartupAnimation } from '../components/StartupAnimation';
-import { TireRoadFeedback } from '../components/TireRoadFeedback';
 import { TopStatusBar } from '../components/TopStatusBar';
-import { VehicleGyroscope3D } from '../components/VehicleGyroscope3D';
 import { useDeviceMotion } from '../hooks/useDeviceMotion';
 import { useDeviceOrientation } from '../hooks/useDeviceOrientation';
 import { useGeolocation } from '../hooks/useGeolocation';
-import { useCalibration } from '../hooks/useCalibration';
 import { useTelemetryView } from '../hooks/useTelemetryView';
 import { useThemeMode } from '../hooks/useThemeMode';
 import { distanceFromMeters, distanceLabel, formatElapsed, round, speedFromMps, speedLabel } from '../lib/format';
@@ -35,7 +31,6 @@ export function Dashboard() {
   const geoSensor = useGeolocation();
   const motionSensor = useDeviceMotion();
   const orientationSensor = useDeviceOrientation();
-  const { calibrate } = useCalibration();
   const telemetry = useTelemetryView();
   const setDriveMode = useDashboardStore((state) => state.setDriveMode);
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
@@ -52,9 +47,11 @@ export function Dashboard() {
     if ('vibrate' in navigator) navigator.vibrate([28, 22, 28]);
   };
 
-  const minimize = async () => {
-    setDriveMode(false);
-    if (document.fullscreenElement) await document.exitFullscreen?.();
+  const maximize = async () => {
+    setDriveMode(true);
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      await document.documentElement.requestFullscreen();
+    }
   };
 
   const handleNav = (tab: NavTab) => {
@@ -65,83 +62,76 @@ export function Dashboard() {
   const braking = telemetry.motion === null ? null : Math.abs(Math.min(0, telemetry.motion.longitudinal));
   const acceleration = telemetry.motion === null ? null : Math.max(0, telemetry.motion.longitudinal);
   const cornering = telemetry.motion === null ? null : Math.abs(telemetry.motion.lateral);
-  const shock = telemetry.motion === null ? null : Math.max(0, telemetry.motion.total - 0.95);
   const hasGpsSpeed = telemetry.speedMps !== null;
   const valueOrDash = (value: number | null, digits = 2) => (value === null ? '--' : round(value, digits).toFixed(digits));
+  const tripStart = telemetry.startedAt === null ? '--' : format(telemetry.startedAt, 'h:mm a');
+  const tripDate = telemetry.startedAt === null ? 'Waiting for trip' : format(telemetry.startedAt, 'MMM d, yyyy');
+  const orientation = telemetry.orientation;
 
   return (
     <main className="app-shell cockpit-shell">
       <StartupAnimation />
       <div className="scanline" />
-      <TopStatusBar now={telemetry.now} realSensorMode={telemetry.realSensorMode} onMinimize={minimize} />
-      {activeTab === 'sensors' ? (
-        <SensorDebugView
-          gps={telemetry.raw.gps}
-          motion={telemetry.raw.motion}
-          orientation={telemetry.raw.orientation}
-          onEnableSensors={requestSensors}
-          onCalibrate={calibrate}
-        />
-      ) : (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-          className="cockpit-layout"
-        >
-        <div className="speed-zone">
-          <SpeedometerGauge speedMps={telemetry.speedMps} units={telemetry.units} />
-        </div>
+      <TopStatusBar now={telemetry.now} realSensorMode={telemetry.realSensorMode} onMaximize={maximize} />
+      <motion.div
+        key={activeTab}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.28 }}
+        className={activeTab === 'dashboard' ? 'cockpit-layout dashboard-tab-layout' : 'cockpit-layout tab-page-layout'}
+      >
+        {activeTab === 'dashboard' ? (
+          <>
+            <div className="force-graphs-zone">
+              <ForceGraphCard title="Braking" value={valueOrDash(braking)} dataKey="braking" history={telemetry.history} color="#fb345c" icon={<ArrowDown className="h-4 w-4" />} />
+              <ForceGraphCard title="Acceleration" value={valueOrDash(acceleration)} dataKey="acceleration" history={telemetry.history} color="#a3e635" icon={<ArrowUp className="h-4 w-4" />} />
+            </div>
+            <div className="trip-cards-zone">
+              <MiniMetricCard label="Trip Start" value={tripStart} unit={tripDate} icon={<Route className="h-4 w-4" />} accent="blue" progress={telemetry.startedAt === null ? 0 : 100} />
+              <MiniMetricCard label="Trip Duration" value={formatElapsed(telemetry.elapsedMs)} unit="hh : mm : ss" icon={<Clock3 className="h-4 w-4" />} accent="orange" progress={telemetry.tripStatus === 'active' ? 100 : 0} />
+            </div>
+            <div className="speed-zone">
+              <SpeedometerGauge speedMps={telemetry.speedMps} units={telemetry.units} />
+            </div>
+            <div className="compass-zone">
+              <CompassGauge heading={telemetry.heading} label={telemetry.headingLabel} />
+            </div>
+          </>
+        ) : null}
 
-        <div className="compass-zone">
-          <CompassGauge heading={telemetry.heading} label={telemetry.headingLabel} />
-        </div>
+        {activeTab === 'performance' ? (
+          <>
+            <div className="performance-metrics">
+              <MiniMetricCard label="Acceleration G" value={valueOrDash(acceleration)} unit="G" icon={<ArrowUp className="h-4 w-4" />} accent="green" progress={(acceleration ?? 0) * 180} sparkline={spark(telemetry.history, 'acceleration')} />
+              <MiniMetricCard label="Pitch" value={orientation === null ? '--' : round(orientation.pitch, 1).toFixed(1)} unit="deg" icon={<Rotate3D className="h-4 w-4" />} accent="blue" progress={Math.abs(orientation?.pitch ?? 0)} />
+              <MiniMetricCard label="Roll" value={orientation === null ? '--' : round(orientation.roll, 1).toFixed(1)} unit="deg" icon={<ArrowLeftRight className="h-4 w-4" />} accent="orange" progress={Math.abs(orientation?.roll ?? 0)} />
+              <MiniMetricCard label="Yaw" value={orientation === null ? '--' : round(orientation.yaw, 0).toFixed(0)} unit="deg" icon={<Gauge className="h-4 w-4" />} accent="red" progress={orientation === null ? 0 : (orientation.yaw / 360) * 100} />
+            </div>
+            <div className="performance-speed-graph">
+              <Suspense fallback={<div className="cockpit-panel graph-panel"><div className="panel-kicker">SPEED GRAPH LIVE</div></div>}>
+                <SpeedGraphLive history={telemetry.history} units={telemetry.units} />
+              </Suspense>
+            </div>
+            <div className="performance-accel-graph">
+              <Suspense fallback={<div className="cockpit-panel graph-panel"><div className="panel-kicker">ACCELERATION GRAPH</div></div>}>
+                <AccelerationGraph history={telemetry.history} />
+              </Suspense>
+            </div>
+          </>
+        ) : null}
 
-        <div className="gyro-zone">
-          <VehicleGyroscope3D orientation={telemetry.orientation} />
-        </div>
-
-        <div className="trip-strip">
-          <MiniMetricCard label="Trip Distance" value={round(distanceFromMeters(telemetry.distanceMeters, telemetry.units), 2).toFixed(2)} unit={distanceLabel(telemetry.units)} icon={<Route className="h-4 w-4" />} accent="blue" progress={62} />
-          <MiniMetricCard label="Duration" value={formatElapsed(telemetry.elapsedMs)} icon={<Clock3 className="h-4 w-4" />} accent="orange" progress={48} />
-          <MiniMetricCard label="Avg Speed" value={hasGpsSpeed ? Math.round(speedFromMps(telemetry.averageSpeedMps, telemetry.units)).toString() : '--'} unit={speedLabel(telemetry.units)} icon={<Gauge className="h-4 w-4" />} accent="green" progress={hasGpsSpeed ? 56 : 0} />
-          <MiniMetricCard label="Max Speed" value={hasGpsSpeed ? Math.round(speedFromMps(telemetry.maxSpeedMps, telemetry.units)).toString() : '--'} unit={speedLabel(telemetry.units)} icon={<MapPinned className="h-4 w-4" />} accent="red" progress={hasGpsSpeed ? 72 : 0} />
-        </div>
-
-        <div className="accel-zone">
-          <AccelerationPanel motion={telemetry.motion} history={telemetry.history} />
-        </div>
-
-        <div className="speed-graph-zone">
-          <Suspense fallback={<div className="cockpit-panel graph-panel"><div className="panel-kicker">SPEED GRAPH LIVE</div></div>}>
-            <SpeedGraphLive history={telemetry.history} units={telemetry.units} />
-          </Suspense>
-        </div>
-
-        <div className="accel-graph-zone">
-          <Suspense fallback={<div className="cockpit-panel graph-panel"><div className="panel-kicker">ACCELERATION GRAPH</div></div>}>
-            <AccelerationGraph history={telemetry.history} />
-          </Suspense>
-        </div>
-
-        <div className="safety-zone">
-          <SafetyScoreGauge score={telemetry.safetyScore} counters={telemetry.safetyCounters} />
-        </div>
-
-        <div className="feedback-zone">
-          <TireRoadFeedback motion={telemetry.motion} />
-          <SensorStatusPanel {...telemetry.live} />
-        </div>
-
-        <div className="bottom-metrics">
-          <MiniMetricCard label="Braking" value={valueOrDash(braking)} unit="G" icon={<ArrowDown className="h-4 w-4" />} accent="red" progress={(braking ?? 0) * 180} sparkline={spark(telemetry.history, 'braking')} />
-          <MiniMetricCard label="Acceleration" value={valueOrDash(acceleration)} unit="G" icon={<ArrowUp className="h-4 w-4" />} accent="green" progress={(acceleration ?? 0) * 180} sparkline={spark(telemetry.history, 'acceleration')} />
-          <MiniMetricCard label="Cornering" value={valueOrDash(cornering)} unit="G" icon={<ArrowLeftRight className="h-4 w-4" />} accent="orange" progress={(cornering ?? 0) * 170} sparkline={spark(telemetry.history, 'cornering')} />
-          <MiniMetricCard label="Shock / Vibration" value={valueOrDash(shock)} unit="G" icon={<Activity className="h-4 w-4" />} accent="blue" progress={(shock ?? 0) * 180} sparkline={spark(telemetry.history, 'totalG')} />
-        </div>
+        {activeTab === 'safety' ? (
+          <div className="safety-page-zone">
+            <SafetyScoreGauge score={telemetry.safetyScore} counters={telemetry.safetyCounters} />
+            <div className="safety-trip-metrics">
+              <MiniMetricCard label="Trip Distance" value={round(distanceFromMeters(telemetry.distanceMeters, telemetry.units), 2).toFixed(2)} unit={distanceLabel(telemetry.units)} icon={<Route className="h-4 w-4" />} accent="blue" progress={62} />
+              <MiniMetricCard label="Avg Speed" value={hasGpsSpeed ? Math.round(speedFromMps(telemetry.averageSpeedMps, telemetry.units)).toString() : '--'} unit={speedLabel(telemetry.units)} icon={<Gauge className="h-4 w-4" />} accent="green" progress={hasGpsSpeed ? 56 : 0} />
+              <MiniMetricCard label="Cornering" value={valueOrDash(cornering)} unit="G" icon={<ArrowLeftRight className="h-4 w-4" />} accent="orange" progress={(cornering ?? 0) * 170} sparkline={spark(telemetry.history, 'cornering')} />
+            </div>
+          </div>
+        ) : null}
         </motion.div>
-      )}
-      <BottomNav active={activeTab} onSelect={handleNav} onMinimize={minimize} />
+      <BottomNav active={activeTab} onSelect={handleNav} />
       <SettingsModal
         open={settingsOpen}
         onClose={() => {

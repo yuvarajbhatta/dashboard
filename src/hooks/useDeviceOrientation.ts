@@ -49,11 +49,20 @@ export function useDeviceOrientation() {
 
     const onOrientation = (event: DeviceOrientationEvent) => {
       const webkitCompassHeading = event.webkitCompassHeading ?? null;
+      const screenAngle =
+        typeof window !== 'undefined'
+          ? (window.screen.orientation?.angle ?? window.orientation ?? 0)
+          : 0;
+      const alphaHeading =
+        event.alpha === null
+          ? 0
+          : ((360 - event.alpha + Number(screenAngle)) % 360 + 360) % 360;
+      const yaw = webkitCompassHeading ?? alphaHeading;
       pendingSample.current = {
         timestamp: Date.now(),
         pitch: event.beta ?? 0,
         roll: event.gamma ?? 0,
-        yaw: webkitCompassHeading ?? event.alpha ?? 0
+        yaw
       };
       pendingRaw.current = {
         timestamp: Date.now(),

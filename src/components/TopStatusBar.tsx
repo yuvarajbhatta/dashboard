@@ -1,7 +1,7 @@
-import { BatteryFull, Bluetooth, LocateFixed, Minimize2, Signal, Wifi } from 'lucide-react';
+import { BatteryFull, Bluetooth, Expand, LocateFixed, Signal, Wifi } from 'lucide-react';
 import { format } from 'date-fns';
 
-export function TopStatusBar({ now, realSensorMode, onMinimize }: { now: number; realSensorMode: boolean; onMinimize: () => void }) {
+export function TopStatusBar({ now, realSensorMode, onMaximize }: { now: number; realSensorMode: boolean; onMaximize: () => void }) {
   return (
     <header className="top-status-bar">
       <div className="drive-mode-indicator">
@@ -18,8 +18,8 @@ export function TopStatusBar({ now, realSensorMode, onMinimize }: { now: number;
         <Wifi className="h-4 w-4" />
         <Bluetooth className="h-4 w-4" />
         <BatteryFull className="h-4 w-4" />
-        <button aria-label="Minimize" className="status-icon-button" onClick={onMinimize} type="button">
-          <Minimize2 className="h-4 w-4" />
+        <button aria-label="Maximize" className="status-icon-button" onClick={onMaximize} type="button">
+          <Expand className="h-4 w-4" />
         </button>
       </div>
     </header>

@@ -12,6 +12,7 @@ export function useTelemetryView() {
   const [now, setNow] = useState(Date.now());
   const units = useDashboardStore((state) => state.units);
   const tripStatus = useDashboardStore((state) => state.tripStatus);
+  const startedAt = useDashboardStore((state) => state.startedAt);
   const elapsedMs = useDashboardStore((state) => state.elapsedMs);
   const lastResumedAt = useDashboardStore((state) => state.lastResumedAt);
   const distanceMeters = useDashboardStore((state) => state.distanceMeters);
@@ -48,6 +49,7 @@ export function useTelemetryView() {
       noRealSensorData: !hasGpsFix && !hasMotion && !hasOrientation,
       units,
       tripStatus,
+      startedAt,
       speedMps: lastGeoSample?.speedMps ?? null,
       averageSpeedMps,
       maxSpeedMps,
@@ -91,6 +93,7 @@ export function useTelemetryView() {
     rawOrientation,
     safetyCounters,
     safetyScore,
+    startedAt,
     tripStatus,
     units
   ]);

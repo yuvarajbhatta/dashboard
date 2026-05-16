@@ -1,4 +1,5 @@
-import { X, Play, Pause, Power, Target, Moon, Sun, RotateCcw, ShieldCheck } from 'lucide-react';
+import { useState } from 'react';
+import { X, Play, Pause, Power, Target, Moon, Sun, RotateCcw, ShieldCheck, Smartphone } from 'lucide-react';
 import clsx from 'clsx';
 import { useCalibration } from '../hooks/useCalibration';
 import { useTripTracker } from '../hooks/useTripTracker';
@@ -26,6 +27,7 @@ export function SettingsModal({
   const setThemeMode = useDashboardStore((state) => state.setThemeMode);
   const { calibrate } = useCalibration();
   const { tripStatus, startTrip, pauseTrip, resumeTrip, endTrip } = useTripTracker();
+  const [homeScreenOpen, setHomeScreenOpen] = useState(false);
 
   if (!open) return null;
 
@@ -46,6 +48,10 @@ export function SettingsModal({
           <button className="control-button neutral" onClick={calibrate} type="button">
             <Target className="h-5 w-5" />
             Calibrate Mount
+          </button>
+          <button className="control-button neutral" onClick={() => setHomeScreenOpen(true)} type="button">
+            <Smartphone className="h-5 w-5" />
+            Add to Home Screen
           </button>
           {tripStatus === 'idle' ? (
             <button className="control-button primary" onClick={startTrip} type="button">
@@ -85,6 +91,22 @@ export function SettingsModal({
           <span>Motion {motionStatus}</span>
           <span>Orientation {orientationStatus}</span>
         </div>
+        {homeScreenOpen ? (
+          <div className="home-screen-panel">
+            <div className="flex items-center justify-between gap-3">
+              <div className="panel-kicker">ADD TO HOME SCREEN</div>
+              <button className="status-icon-button" onClick={() => setHomeScreenOpen(false)} type="button" aria-label="Close add to home screen instructions">
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+            <ol>
+              <li>Open this dashboard in Safari on iPhone.</li>
+              <li>Tap the Share button in the Safari toolbar.</li>
+              <li>Choose Add to Home Screen, then tap Add.</li>
+              <li>Launch from the Home Screen before enabling sensors.</li>
+            </ol>
+          </div>
+        ) : null}
       </section>
     </div>
   );

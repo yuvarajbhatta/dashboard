@@ -55,8 +55,14 @@ export function useDeviceMotion() {
       const source = acceleration ?? accelerationIncludingGravity;
       if (!source) return;
 
-      const lateral = (source.x ?? 0) / GRAVITY;
-      const longitudinal = (source.y ?? 0) / GRAVITY;
+      const screenAngle = window.screen.orientation?.angle ?? window.orientation ?? 0;
+      const angleRad = (Number(screenAngle) * Math.PI) / 180;
+      const x = source.x ?? 0;
+      const y = source.y ?? 0;
+      const screenX = x * Math.cos(angleRad) - y * Math.sin(angleRad);
+      const screenY = x * Math.sin(angleRad) + y * Math.cos(angleRad);
+      const lateral = screenX / GRAVITY;
+      const longitudinal = screenY / GRAVITY;
       const vertical = (source.z ?? 0) / GRAVITY;
       const total = Math.sqrt(lateral * lateral + longitudinal * longitudinal + vertical * vertical);
       const vector = (value: DeviceMotionEventAcceleration | null): Vector3 => ({

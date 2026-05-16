@@ -19,7 +19,7 @@ export function SpeedGraphLive({ history, units }: { history: ChartPoint[]; unit
           <XAxis dataKey="time" hide />
           <YAxis hide domain={['auto', 'auto']} />
           <Tooltip content={<ChartTooltip unit={units === 'mph' ? 'MPH' : 'KM/H'} />} />
-          <Area type="monotone" dataKey="speed" stroke="#22d3ee" strokeWidth={3} fill="url(#speedFill)" dot={false} isAnimationActive />
+          <Area type="monotone" dataKey="speed" stroke="#22d3ee" strokeWidth={3} fill="url(#speedFill)" dot={false} isAnimationActive={false} />
         </AreaChart>
       </ResponsiveContainer>
     </section>
@@ -36,9 +36,9 @@ export function AccelerationGraph({ history }: { history: ChartPoint[] }) {
           <XAxis dataKey="time" hide />
           <YAxis hide domain={['auto', 'auto']} />
           <Tooltip content={<ChartTooltip unit="G" />} />
-          <Line type="monotone" dataKey="acceleration" stroke="#a3e635" strokeWidth={2.6} dot={false} isAnimationActive />
-          <Line type="monotone" dataKey="braking" stroke="#fb7185" strokeWidth={2.2} dot={false} isAnimationActive />
-          <Line type="monotone" dataKey="cornering" stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive />
+          <Line type="monotone" dataKey="acceleration" stroke="#a3e635" strokeWidth={2.6} dot={false} isAnimationActive={false} />
+          <Line type="monotone" dataKey="braking" stroke="#fb7185" strokeWidth={2.2} dot={false} isAnimationActive={false} />
+          <Line type="monotone" dataKey="cornering" stroke="#f59e0b" strokeWidth={2.2} dot={false} isAnimationActive={false} />
         </LineChart>
       </ResponsiveContainer>
     </section>
