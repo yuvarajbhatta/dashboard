@@ -32,6 +32,8 @@ export function SensorDebugView({
       </div>
       <DebugPanel title="GPS">
         <Row label="speed" value={fmt(gps?.speedMps, 2)} unit="m/s" />
+        <Row label="native speed" value={fmt(gps?.nativeSpeedMps, 2)} unit="m/s" />
+        <Row label="derived speed" value={fmt(gps?.derivedSpeedMps, 2)} unit="m/s" />
         <Row label="heading" value={fmt(gps?.heading, 1)} unit="deg" />
         <Row label="accuracy" value={fmt(gps?.accuracy, 1)} unit="m" />
         <Row label="lat" value={fmt(gps?.latitude, 6)} />
@@ -50,6 +52,7 @@ export function SensorDebugView({
         <Row label="beta" value={fmt(motion?.rotationRate.beta)} />
         <Row label="gamma" value={fmt(motion?.rotationRate.gamma)} />
         <Row label="interval" value={fmt(motion?.interval, 1)} unit="ms" />
+        <Row label="screen angle" value={fmt(motion?.screenAngle, 0)} unit="deg" />
       </DebugPanel>
       <DebugPanel title="deviceorientation">
         <Row label="alpha" value={fmt(orientation?.alpha)} />

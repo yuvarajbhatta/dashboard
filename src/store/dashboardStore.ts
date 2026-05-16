@@ -205,19 +205,34 @@ export const useDashboardStore = create<DashboardState>()(
       updateGeolocation: (sample) => {
         const state = get();
         let distanceMeters = state.distanceMeters;
+        let segmentMeters = 0;
         if (state.tripStatus === 'active' && state.lastGeoSample) {
-          const meters = haversineMeters(state.lastGeoSample, sample);
-          if (meters >= 0.5 && meters <= 220 && sample.accuracy <= 80) {
-            distanceMeters += meters;
+          segmentMeters = haversineMeters(state.lastGeoSample, sample);
+          if (segmentMeters >= 0.5 && segmentMeters <= 220 && sample.accuracy <= 80) {
+            distanceMeters += segmentMeters;
           }
         }
-        const speedMps = sample.speedMps ?? 0;
-        const maxSpeedMps = Math.max(state.maxSpeedMps, speedMps);
+        let derivedSpeedMps: number | null = null;
+        if (state.lastGeoSample) {
+          const dtSeconds = (sample.timestamp - state.lastGeoSample.timestamp) / 1000;
+          const meters = segmentMeters || haversineMeters(state.lastGeoSample, sample);
+          if (dtSeconds >= 0.5 && dtSeconds <= 10 && meters >= 0.25 && meters <= 220 && sample.accuracy <= 80) {
+            derivedSpeedMps = meters / dtSeconds;
+          }
+        }
+        const resolvedSpeedMps = sample.nativeSpeedMps ?? derivedSpeedMps ?? sample.speedMps ?? null;
+        const speedForStats = resolvedSpeedMps ?? 0;
+        const resolvedSample = {
+          ...sample,
+          speedMps: resolvedSpeedMps,
+          derivedSpeedMps
+        };
+        const maxSpeedMps = Math.max(state.maxSpeedMps, speedForStats);
         const elapsed = tripElapsed(state, sample.timestamp);
         set({
           geolocationPermission: 'granted',
-          lastGeoSample: sample,
-          currentSpeedMps: speedMps,
+          lastGeoSample: resolvedSample,
+          currentSpeedMps: speedForStats,
           distanceMeters,
           maxSpeedMps,
           averageSpeedMps: elapsed > 0 ? distanceMeters / (elapsed / 1000) : 0

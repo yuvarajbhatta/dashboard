@@ -39,6 +39,8 @@ export function useGeolocation() {
           accuracy: coords.accuracy,
           heading: coords.heading,
           speedMps: coords.speed === null ? null : Math.max(0, coords.speed),
+          nativeSpeedMps: coords.speed === null ? null : Math.max(0, coords.speed),
+          derivedSpeedMps: null,
           timestamp: position.timestamp || Date.now()
         };
         setPermission('geolocationPermission', 'granted');

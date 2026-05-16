@@ -87,7 +87,8 @@ export function useDeviceMotion() {
           beta: event.rotationRate?.beta ?? null,
           gamma: event.rotationRate?.gamma ?? null
         },
-        interval: event.interval ?? null
+        interval: event.interval ?? null,
+        screenAngle: Number(screenAngle)
       };
 
       if (frame.current === null) {

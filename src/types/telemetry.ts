@@ -9,6 +9,8 @@ export interface GeoSample {
   accuracy: number;
   heading: number | null;
   speedMps: number | null;
+  nativeSpeedMps: number | null;
+  derivedSpeedMps: number | null;
   timestamp: number;
 }
 
@@ -45,6 +47,7 @@ export interface RawMotionSample {
   accelerationIncludingGravity: Vector3;
   rotationRate: RotationRateSample;
   interval: number | null;
+  screenAngle: number;
 }
 
 export interface RawOrientationSample {
