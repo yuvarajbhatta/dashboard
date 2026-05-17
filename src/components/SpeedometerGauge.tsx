@@ -73,7 +73,6 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
             {hasSpeed ? speed : '--'}
           </motion.div>
           <div className="speed-unit">{speedLabel(units)}</div>
-          <div className="drive-badge"><span>D</span> SPORT</div>
         </div>
       </div>
     </section>
