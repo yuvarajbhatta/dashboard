@@ -62,7 +62,10 @@ export function useDeviceMotion() {
       const screenX = x * Math.cos(angleRad) - y * Math.sin(angleRad);
       const screenY = x * Math.sin(angleRad) + y * Math.cos(angleRad);
       const lateral = screenX / GRAVITY;
-      const longitudinal = screenY / GRAVITY;
+      // iPhone mounted landscape and upright commonly reports forward acceleration with the
+      // opposite sign from the dashboard convention. Positive longitudinal G means acceleration;
+      // negative longitudinal G means braking. Calibrate Mount still subtracts the static baseline.
+      const longitudinal = -screenY / GRAVITY;
       const vertical = (source.z ?? 0) / GRAVITY;
       const total = Math.sqrt(lateral * lateral + longitudinal * longitudinal + vertical * vertical);
       const vector = (value: DeviceMotionEventAcceleration | null): Vector3 => ({

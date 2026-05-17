@@ -14,3 +14,16 @@ interface Window {
 interface DeviceOrientationEvent {
   webkitCompassHeading?: number;
 }
+
+interface BatteryManager extends EventTarget {
+  charging: boolean;
+  level: number;
+}
+
+interface Navigator {
+  getBattery?: () => Promise<BatteryManager>;
+  connection?: {
+    effectiveType?: string;
+    type?: string;
+  };
+}

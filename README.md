@@ -47,6 +47,7 @@ The app is optimized for iPhone landscape use. For local development, `localhost
 - Use HTTPS in production. iPhone Safari blocks GPS and motion/orientation permissions on insecure origins, except `localhost`.
 - Open the app on the iPhone, tap `Settings`, then tap `Enable Sensors`. iOS requires this user gesture before `DeviceMotionEvent.requestPermission()` and `DeviceOrientationEvent.requestPermission()` can run.
 - Tap `Calibrate Mount` after the phone is mounted horizontally in the car. The app stores the current pitch, roll, yaw, and G-force baseline locally.
+- Optional weather support uses `VITE_WEATHER_API_KEY`. Copy `.env.example` to `.env.local` and set the key locally or in your hosting provider. Do not commit real keys.
 - Deploy the built `dist` output to any static HTTPS host. The source repo intentionally ignores `dist`, `dev-dist`, `node_modules`, logs, and `.env*` files because this GitHub repository is public.
 - Do not commit secrets or private deployment tokens. If environment variables are added later, put public examples in `.env.example` only.
 

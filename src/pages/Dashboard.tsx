@@ -2,20 +2,25 @@ import { Suspense, lazy, useEffect, useState } from 'react';
 import { ArrowDown, ArrowLeftRight, ArrowUp, Clock3, Gauge, Rotate3D, Route } from 'lucide-react';
 import { format } from 'date-fns';
 import { motion } from 'framer-motion';
+import { AccelerationPanel } from '../components/AccelerationPanel';
 import { BottomNav, type NavTab } from '../components/BottomNav';
-import { CompassGauge } from '../components/CompassGauge';
+import { HeadingCard, PhoneTemperatureCard, WeatherCard } from '../components/DashboardInfoCards';
 import { ForceGraphCard } from '../components/ForceGraphCard';
 import { MiniMetricCard } from '../components/MiniMetricCard';
 import { SafetyScoreGauge } from '../components/SafetyScoreGauge';
-import { SettingsModal } from '../components/SettingsModal';
+import { SensorDebugView } from '../components/SensorDebugView';
+import { SettingsTab } from '../components/SettingsTab';
 import { SpeedometerGauge } from '../components/SpeedometerGauge';
 import { StartupAnimation } from '../components/StartupAnimation';
 import { TopStatusBar } from '../components/TopStatusBar';
+import { VehicleGyroscope3D } from '../components/VehicleGyroscope3D';
+import { useCalibration } from '../hooks/useCalibration';
 import { useDeviceMotion } from '../hooks/useDeviceMotion';
 import { useDeviceOrientation } from '../hooks/useDeviceOrientation';
 import { useGeolocation } from '../hooks/useGeolocation';
 import { useTelemetryView } from '../hooks/useTelemetryView';
 import { useThemeMode } from '../hooks/useThemeMode';
+import { useWeather } from '../hooks/useWeather';
 import { distanceFromMeters, distanceLabel, formatElapsed, round, speedFromMps, speedLabel } from '../lib/format';
 import { useDashboardStore } from '../store/dashboardStore';
 
@@ -32,9 +37,11 @@ export function Dashboard() {
   const motionSensor = useDeviceMotion();
   const orientationSensor = useDeviceOrientation();
   const telemetry = useTelemetryView();
+  const { calibrate } = useCalibration();
+  const weather = useWeather(telemetry.raw.gps);
   const setDriveMode = useDashboardStore((state) => state.setDriveMode);
   const [activeTab, setActiveTab] = useState<NavTab>('dashboard');
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [fullscreenMessage, setFullscreenMessage] = useState<string | null>(null);
 
   useEffect(() => {
     setDriveMode(true);
@@ -49,14 +56,24 @@ export function Dashboard() {
 
   const maximize = async () => {
     setDriveMode(true);
-    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-      await document.documentElement.requestFullscreen();
+    setFullscreenMessage(null);
+    if (!document.documentElement.requestFullscreen) {
+      setFullscreenMessage('Fullscreen is not available in this Safari context. Add the app to Home Screen for standalone display.');
+      setActiveTab('settings');
+      return;
+    }
+    try {
+      if (!document.fullscreenElement) {
+        await document.documentElement.requestFullscreen();
+      }
+    } catch {
+      setFullscreenMessage('Fullscreen was blocked. On iPhone, use Share -> Add to Home Screen for the best full-screen dashboard.');
+      setActiveTab('settings');
     }
   };
 
   const handleNav = (tab: NavTab) => {
     setActiveTab(tab);
-    if (tab === 'settings') setSettingsOpen(true);
   };
 
   const braking = telemetry.motion === null ? null : Math.abs(Math.min(0, telemetry.motion.longitudinal));
@@ -72,7 +89,7 @@ export function Dashboard() {
     <main className="app-shell cockpit-shell">
       <StartupAnimation />
       <div className="scanline" />
-      <TopStatusBar now={telemetry.now} realSensorMode={telemetry.realSensorMode} onMaximize={maximize} />
+      <TopStatusBar now={telemetry.now} realSensorMode={telemetry.realSensorMode} gpsActive={telemetry.live.gps} onMaximize={maximize} />
       <motion.div
         key={activeTab}
         initial={{ opacity: 0, y: 10 }}
@@ -83,18 +100,18 @@ export function Dashboard() {
         {activeTab === 'dashboard' ? (
           <>
             <div className="force-graphs-zone">
-              <ForceGraphCard title="Braking" value={valueOrDash(braking)} dataKey="braking" history={telemetry.history} color="#fb345c" icon={<ArrowDown className="h-4 w-4" />} />
               <ForceGraphCard title="Acceleration" value={valueOrDash(acceleration)} dataKey="acceleration" history={telemetry.history} color="#a3e635" icon={<ArrowUp className="h-4 w-4" />} />
-            </div>
-            <div className="trip-cards-zone">
-              <MiniMetricCard label="Trip Start" value={tripStart} unit={tripDate} icon={<Route className="h-4 w-4" />} accent="blue" progress={telemetry.startedAt === null ? 0 : 100} />
+              <ForceGraphCard title="Braking" value={valueOrDash(braking)} dataKey="braking" history={telemetry.history} color="#fb345c" icon={<ArrowDown className="h-4 w-4" />} />
               <MiniMetricCard label="Trip Duration" value={formatElapsed(telemetry.elapsedMs)} unit="hh : mm : ss" icon={<Clock3 className="h-4 w-4" />} accent="orange" progress={telemetry.tripStatus === 'active' ? 100 : 0} />
+              <MiniMetricCard label="Trip Start" value={tripStart} unit={tripDate} icon={<Route className="h-4 w-4" />} accent="blue" progress={telemetry.startedAt === null ? 0 : 100} />
             </div>
             <div className="speed-zone">
               <SpeedometerGauge speedMps={telemetry.speedMps} units={telemetry.units} />
             </div>
-            <div className="compass-zone">
-              <CompassGauge heading={telemetry.heading} label={telemetry.headingLabel} />
+            <div className="right-info-zone">
+              <HeadingCard heading={telemetry.heading} label={telemetry.headingLabel} />
+              <WeatherCard weather={weather.weather} status={weather.status} />
+              <PhoneTemperatureCard />
             </div>
           </>
         ) : null}
@@ -106,6 +123,12 @@ export function Dashboard() {
               <MiniMetricCard label="Pitch" value={orientation === null ? '--' : round(orientation.pitch, 1).toFixed(1)} unit="deg" icon={<Rotate3D className="h-4 w-4" />} accent="blue" progress={Math.abs(orientation?.pitch ?? 0)} />
               <MiniMetricCard label="Roll" value={orientation === null ? '--' : round(orientation.roll, 1).toFixed(1)} unit="deg" icon={<ArrowLeftRight className="h-4 w-4" />} accent="orange" progress={Math.abs(orientation?.roll ?? 0)} />
               <MiniMetricCard label="Yaw" value={orientation === null ? '--' : round(orientation.yaw, 0).toFixed(0)} unit="deg" icon={<Gauge className="h-4 w-4" />} accent="red" progress={orientation === null ? 0 : (orientation.yaw / 360) * 100} />
+            </div>
+            <div className="performance-g-panel">
+              <AccelerationPanel motion={telemetry.motion} history={telemetry.history} />
+            </div>
+            <div className="performance-gyro-panel">
+              <VehicleGyroscope3D orientation={telemetry.orientation} />
             </div>
             <div className="performance-speed-graph">
               <Suspense fallback={<div className="cockpit-panel graph-panel"><div className="panel-kicker">SPEED GRAPH LIVE</div></div>}>
@@ -130,19 +153,27 @@ export function Dashboard() {
             </div>
           </div>
         ) : null}
+
+        {activeTab === 'settings' ? (
+          <div className="settings-page-zone">
+            <SettingsTab
+              onRequestSensors={requestSensors}
+              motionStatus={motionSensor.status}
+              orientationStatus={orientationSensor.status}
+              geoStatus={geoSensor.status}
+              fullscreenMessage={fullscreenMessage}
+            />
+            <SensorDebugView
+              gps={telemetry.raw.gps}
+              motion={telemetry.raw.motion}
+              orientation={telemetry.raw.orientation}
+              onEnableSensors={requestSensors}
+              onCalibrate={calibrate}
+            />
+          </div>
+        ) : null}
         </motion.div>
-      <BottomNav active={activeTab} onSelect={handleNav} />
-      <SettingsModal
-        open={settingsOpen}
-        onClose={() => {
-          setSettingsOpen(false);
-          setActiveTab('dashboard');
-        }}
-        onRequestSensors={requestSensors}
-        motionStatus={motionSensor.status}
-        orientationStatus={orientationSensor.status}
-        geoStatus={geoSensor.status}
-      />
+      <BottomNav active={activeTab} onSelect={handleNav} onMaximize={maximize} />
       <div className="rotate-phone-overlay">Rotate iPhone horizontally</div>
     </main>
   );
