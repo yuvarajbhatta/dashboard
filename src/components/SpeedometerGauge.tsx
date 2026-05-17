@@ -3,7 +3,8 @@ import { motion } from 'framer-motion';
 import { speedLabel, speedFromMps } from '../lib/format';
 import type { UnitSystem } from '../types/telemetry';
 
-const labels = [0, 40, 80, 120, 160, 200, 240];
+const mphLabels = [0, 20, 60, 80, 100, 120, 140, 160, 180, 200];
+const kmhLabels = [0, 40, 80, 120, 160, 200, 240];
 const startAngle = 225;
 const sweep = 270;
 
@@ -12,16 +13,17 @@ function polar(angle: number, radius: number) {
   return { x: 180 + radius * Math.cos(rad), y: 180 + radius * Math.sin(rad) };
 }
 
-function gaugeAngle(speed: number) {
-  return startAngle + Math.min(240, Math.max(0, speed)) * (sweep / 240);
+function gaugeAngle(speed: number, maxSpeed: number) {
+  return startAngle + Math.min(maxSpeed, Math.max(0, speed)) * (sweep / maxSpeed);
 }
 
 export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null; units: UnitSystem }) {
   const hasSpeed = speedMps !== null;
   const speed = hasSpeed ? Math.round(speedFromMps(speedMps, units)) : 0;
-  const kmhEquivalent = units === 'mph' ? speed * 1.60934 : speed;
-  const progress = Math.min(100, Math.max(0, (kmhEquivalent / 240) * 100));
-  const needleAngle = gaugeAngle(kmhEquivalent);
+  const maxSpeed = units === 'mph' ? 200 : 240;
+  const labels = units === 'mph' ? mphLabels : kmhLabels;
+  const progress = Math.min(100, Math.max(0, (speed / maxSpeed) * 100));
+  const needleAngle = gaugeAngle(speed, maxSpeed);
 
   return (
     <section className="cockpit-panel speedometer-panel">
@@ -35,9 +37,11 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
                 <feMergeNode in="SourceGraphic" />
               </feMerge>
             </filter>
-            <linearGradient id="speedArcGradient" x1="40" y1="60" x2="320" y2="320">
-              <stop stopColor="#22d3ee" />
-              <stop offset="0.64" stopColor="#22d3ee" />
+            <linearGradient id="speedArcGradient" x1="56" y1="280" x2="304" y2="74">
+              <stop stopColor="#7ddc3a" />
+              <stop offset="0.28" stopColor="#74d84a" />
+              <stop offset="0.58" stopColor="#f5d238" />
+              <stop offset="0.82" stopColor="#f97316" />
               <stop offset="1" stopColor="#fb345c" />
             </linearGradient>
           </defs>
@@ -50,9 +54,9 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
             return <line key={index} x1={inner.x} y1={inner.y} x2={outer.x} y2={outer.y} stroke={index % 6 === 0 ? '#e2e8f0' : 'rgba(148,163,184,0.42)'} strokeWidth={index % 6 === 0 ? 3 : 1.5} strokeLinecap="round" />;
           })}
           {labels.map((label) => {
-            const point = polar(gaugeAngle(label), 113);
+            const point = polar(gaugeAngle(label, maxSpeed), 113);
             return (
-              <text key={label} x={point.x} y={point.y} fill="#94a3b8" fontSize="16" fontWeight="800" textAnchor="middle" dominantBaseline="middle">
+              <text key={label} x={point.x} y={point.y} fill="#f8fafc" fontSize="16" fontWeight="800" textAnchor="middle" dominantBaseline="middle">
                 {label}
               </text>
             );
@@ -69,6 +73,7 @@ export function SpeedometerGauge({ speedMps, units }: { speedMps: number | null;
             {hasSpeed ? speed : '--'}
           </motion.div>
           <div className="speed-unit">{speedLabel(units)}</div>
+          <div className="drive-badge"><span>D</span> SPORT</div>
         </div>
       </div>
     </section>

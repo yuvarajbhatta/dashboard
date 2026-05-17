@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { Area, AreaChart, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
+import { Area, AreaChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, YAxis } from 'recharts';
 import type { ChartPoint } from '../types/telemetry';
 
 export function ForceGraphCard({
@@ -19,7 +19,12 @@ export function ForceGraphCard({
   color: string;
   icon: ReactNode;
 }) {
-  const data = history.slice(-48);
+  const data = history.slice(-56).map((point) => ({
+    ...point,
+    signed: dataKey === 'braking' ? -point.braking : point.acceleration
+  }));
+  const positiveLimit = Math.max(1.5, ...data.map((point) => Math.abs(point.signed)));
+  const domain: [number, number] = [-positiveLimit, positiveLimit];
 
   return (
     <section className="cockpit-panel force-graph-card">
@@ -41,11 +46,13 @@ export function ForceGraphCard({
               <stop offset="100%" stopColor={color} stopOpacity={0.03} />
             </linearGradient>
           </defs>
-          <YAxis hide domain={[0, (max: number) => Math.max(0.4, Math.ceil(max * 10) / 10)]} />
+          <CartesianGrid stroke="rgba(148,163,184,0.1)" vertical horizontal />
+          <YAxis hide domain={domain} />
+          <ReferenceLine y={0} stroke="rgba(226,232,240,0.32)" strokeWidth={1} />
           <Tooltip content={<ForceTooltip unit={unit} label={title} />} />
           <Area
             type="monotone"
-            dataKey={dataKey}
+            dataKey="signed"
             stroke={color}
             strokeWidth={2.2}
             fill={`url(#${dataKey}Fill)`}

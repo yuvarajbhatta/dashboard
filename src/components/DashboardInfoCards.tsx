@@ -40,7 +40,8 @@ export function PhoneTemperatureCard() {
     <section className="cockpit-panel info-card phone-temp-card">
       <div>
         <div className="panel-kicker"><BatteryWarning className="h-4 w-4 text-sky-200" />Phone Temperature</div>
-        <div className="unavailable-text mt-5">Unavailable on Safari</div>
+        <div className="phone-temp-value">--°C</div>
+        <div className="phone-temp-state">Unavailable</div>
       </div>
       <div className="thermal-ring">
         <div className="phone-outline" />
