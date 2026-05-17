@@ -4,15 +4,9 @@ import type { GeoSample } from '../types/telemetry';
 
 export function useWeather(location: GeoSample | null) {
   const [weather, setWeather] = useState<WeatherResult | null>(null);
-  const [status, setStatus] = useState<'unconfigured' | 'waiting' | 'loading' | 'available' | 'unavailable'>('unconfigured');
+  const [status, setStatus] = useState<'waiting' | 'loading' | 'available' | 'unavailable'>('waiting');
 
   useEffect(() => {
-    const key = import.meta.env.VITE_WEATHER_API_KEY as string | undefined;
-    if (!key) {
-      setStatus('unconfigured');
-      setWeather(null);
-      return;
-    }
     if (!location) {
       setStatus('waiting');
       setWeather(null);
