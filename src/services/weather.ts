@@ -8,35 +8,76 @@ export interface WeatherResult {
   precipitationPercent: number | null;
 }
 
-const OPEN_WEATHER_URL = 'https://api.openweathermap.org/data/2.5/weather';
-
 export async function loadWeather(location: GeoSample | null): Promise<WeatherResult | null> {
-  const key = import.meta.env.VITE_WEATHER_API_KEY as string | undefined;
-  if (!key || !location) return null;
+  if (!location) return null;
 
   const params = new URLSearchParams({
-    lat: String(location.latitude),
-    lon: String(location.longitude),
-    units: 'imperial',
-    appid: key
+    latitude: String(location.latitude),
+    longitude: String(location.longitude),
+    current: 'temperature_2m,weather_code',
+    daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max',
+    temperature_unit: 'fahrenheit',
+    timezone: 'auto'
   });
 
-  const response = await fetch(`${OPEN_WEATHER_URL}?${params.toString()}`);
+  const response = await fetch(
+    `https://api.open-meteo.com/v1/forecast?${params.toString()}`
+  );
+
   if (!response.ok) return null;
+
   const data = (await response.json()) as {
-    main?: { temp?: number; temp_max?: number; temp_min?: number };
-    weather?: Array<{ description?: string }>;
-    rain?: { '1h'?: number };
-    snow?: { '1h'?: number };
+    current?: {
+      temperature_2m?: number;
+      weather_code?: number;
+    };
+    daily?: {
+      temperature_2m_max?: number[];
+      temperature_2m_min?: number[];
+      precipitation_probability_max?: number[];
+    };
   };
 
-  if (typeof data.main?.temp !== 'number') return null;
+  if (typeof data.current?.temperature_2m !== 'number') {
+    return null;
+  }
+
+  const weatherDescription = getWeatherDescription(
+    data.current?.weather_code ?? 0
+  );
 
   return {
-    tempF: data.main.temp,
-    highF: data.main.temp_max ?? null,
-    lowF: data.main.temp_min ?? null,
-    description: data.weather?.[0]?.description ?? 'Weather available',
-    precipitationPercent: data.rain?.['1h'] || data.snow?.['1h'] ? 100 : null
+    tempF: data.current.temperature_2m,
+    highF: data.daily?.temperature_2m_max?.[0] ?? null,
+    lowF: data.daily?.temperature_2m_min?.[0] ?? null,
+    description: weatherDescription,
+    precipitationPercent:
+      data.daily?.precipitation_probability_max?.[0] ?? null
   };
+}
+
+
+function getWeatherDescription(code: number): string {
+  const weatherCodes: Record<number, string> = {
+    0: 'Clear Sky',
+    1: 'Mainly Clear',
+    2: 'Partly Cloudy',
+    3: 'Overcast',
+    45: 'Fog',
+    48: 'Freezing Fog',
+    51: 'Light Drizzle',
+    53: 'Moderate Drizzle',
+    55: 'Dense Drizzle',
+    61: 'Light Rain',
+    63: 'Moderate Rain',
+    65: 'Heavy Rain',
+    71: 'Light Snow',
+    73: 'Moderate Snow',
+    75: 'Heavy Snow',
+    80: 'Rain Showers',
+    81: 'Heavy Showers',
+    95: 'Thunderstorm'
+  };
+
+  return weatherCodes[code] ?? 'Weather Available';
 }
