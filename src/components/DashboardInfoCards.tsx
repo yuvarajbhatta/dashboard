@@ -6,8 +6,30 @@ export function HeadingCard({ heading, label }: { heading: number | null; label:
   return (
     <section className="cockpit-panel info-card heading-card">
       <div className="panel-kicker"><Compass className="h-4 w-4 text-sky-300" />Heading</div>
-      <div className="heading-value">{value === null ? '--' : `${value}°`}</div>
-      <div className="heading-direction">{value === null ? 'Waiting' : label}</div>
+      <div className="tesla-compass-card">
+        <div className="tesla-compass-direction">
+          {value === null ? '--' : label}
+        </div>
+
+        <div className="tesla-compass-window">
+          <div
+            className="tesla-compass-tape"
+            style={{
+              transform: `translateX(calc(-${value ?? 0} / 360 * var(--compass-loop-width)))`
+            }}
+          >
+            {['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE', 'E', 'SE', 'S'].map((direction, index) => (
+              <span key={`${direction}-${index}`}>{direction}</span>
+            ))}
+          </div>
+
+          <div className="tesla-compass-center-line" />
+        </div>
+
+        <div className="tesla-compass-angle">
+          {value === null ? '--' : `${value}°`}
+        </div>
+      </div>
     </section>
   );
 }
