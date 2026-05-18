@@ -3083,3 +3083,14 @@ body,
     font-size: 0.9rem;
   }
 }
+
+.tesla-compass-direction,
+.tesla-compass-angle,
+.heading-value,
+.heading-direction {
+  display: none !important;
+}
+
+.tesla-compass-window {
+  align-self: center !important;
+}
