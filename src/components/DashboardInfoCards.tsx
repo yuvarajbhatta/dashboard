@@ -3,41 +3,29 @@ import type { WeatherResult } from '../services/weather';
 
 export function HeadingCard({ heading, label }: { heading: number | null; label: string }) {
   const value = heading === null ? null : Math.round(((heading % 360) + 360) % 360);
-  const compassMarks = [
-    { label: 'N', angle: 0 },
-    { label: 'NE', angle: 45 },
-    { label: 'E', angle: 90 },
-    { label: 'SE', angle: 135 },
-    { label: 'S', angle: 180 },
-    { label: 'SW', angle: 225 },
-    { label: 'W', angle: 270 },
-    { label: 'NW', angle: 315 }
-  ].map((mark) => {
-    const current = value ?? 0;
-    const delta = ((mark.angle - current + 540) % 360) - 180;
-    return {
-      ...mark,
-      delta,
-      left: 50 + delta * (100 / 180)
-    };
-  });
+  const rotation = value ?? 0;
+
   return (
     <section className="cockpit-panel info-card heading-card">
       <div className="panel-kicker"><Compass className="h-4 w-4 text-sky-300" />Heading</div>
-      <div className="tesla-compass-card">
-        <div className="tesla-compass-window">
-          <div className="tesla-compass-tape">
-            {compassMarks.map((mark) => (
-              <span
-                key={mark.label}
-                className={Math.abs(mark.delta) < 22.5 ? 'is-active' : undefined}
-                style={{ left: `${mark.left}%` }}
-              >
-                {mark.label}
-              </span>
-            ))}
+      <div className="tesla-compass-card compass-circle-card">
+        <div className="compass-circle-wrap">
+          <div
+            className="compass-ring"
+            style={{ transform: `rotate(${-rotation}deg)` }}
+          >
+            <span className="compass-dir compass-n">N</span>
+            <span className="compass-dir compass-e">E</span>
+            <span className="compass-dir compass-s">S</span>
+            <span className="compass-dir compass-w">W</span>
+            <span className="compass-dir compass-ne">NE</span>
+            <span className="compass-dir compass-se">SE</span>
+            <span className="compass-dir compass-sw">SW</span>
+            <span className="compass-dir compass-nw">NW</span>
           </div>
-          <div className="tesla-compass-center-line" />
+
+          <div className="compass-fixed-arrow" aria-hidden="true" />
+          <div className="compass-center-dot" />
         </div>
       </div>
     </section>
