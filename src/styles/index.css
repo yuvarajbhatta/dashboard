@@ -2870,10 +2870,10 @@ body,
 .tesla-speed-digits {
   display: block !important;
   font-family: 'Orbitron', 'Rajdhani', 'Arial Black', system-ui, sans-serif !important;
-  font-size: clamp(9rem, 28vw, 18rem) !important;
-  font-weight: 900 !important;
+  font-size: clamp(8.4rem, 25vw, 16rem) !important;
+  font-weight: 700 !important;
   line-height: 0.72 !important;
-  letter-spacing: -0.12em !important;
+  letter-spacing: -0.04em !important;
   color: #f8fafc !important;
   font-variant-numeric: tabular-nums !important;
   text-shadow:
@@ -2898,7 +2898,7 @@ body,
 
 @media (orientation: landscape) and (max-height: 520px) {
   .tesla-speed-digits {
-    font-size: clamp(7rem, 23vw, 12rem) !important;
+    font-size: clamp(6.6rem, 20vw, 10.8rem) !important;
   }
 
   .tesla-speed-unit {

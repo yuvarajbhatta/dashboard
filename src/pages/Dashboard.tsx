@@ -102,8 +102,8 @@ export function Dashboard() {
             <div className="force-graphs-zone">
               <ForceGraphCard title="Acceleration" value={valueOrDash(acceleration)} dataKey="acceleration" history={telemetry.history} color="#a3e635" icon={<ArrowUp className="h-4 w-4" />} />
               <ForceGraphCard title="Braking" value={valueOrDash(braking)} dataKey="braking" history={telemetry.history} color="#fb345c" icon={<ArrowDown className="h-4 w-4" />} />
-              <MiniMetricCard label="Trip Duration" value={formatElapsed(telemetry.elapsedMs)} unit="hh : mm : ss" icon={<Clock3 className="h-4 w-4" />} accent="orange" progress={telemetry.tripStatus === 'active' ? 100 : 0} />
-              <MiniMetricCard label="Trip Start" value={tripStart} unit={tripDate} icon={<Route className="h-4 w-4" />} accent="blue" progress={telemetry.startedAt === null ? 0 : 100} />
+              {/*<MiniMetricCard label="Trip Duration" value={formatElapsed(telemetry.elapsedMs)} unit="hh : mm : ss" icon={<Clock3 className="h-4 w-4" />} accent="orange" progress={telemetry.tripStatus === 'active' ? 100 : 0} />*/}
+              {/*<MiniMetricCard label="Trip Start" value={tripStart} unit={tripDate} icon={<Route className="h-4 w-4" />} accent="blue" progress={telemetry.startedAt === null ? 0 : 100} />*/}
             </div>
             <div className="speed-zone">
               <SpeedometerGauge speedMps={telemetry.speedMps} units={telemetry.units} />
