@@ -2928,3 +2928,184 @@ body,
   }
 }
 
+
+/* Circular compass UI */
+.heading-card {
+  display: grid !important;
+  grid-template-rows: auto minmax(0, 1fr) !important;
+  align-content: stretch !important;
+  gap: 0.55rem !important;
+}
+
+.compass-circle-card {
+  display: grid !important;
+  place-items: center !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.compass-circle-wrap {
+  position: relative !important;
+  width: min(100%, 9.6rem) !important;
+  aspect-ratio: 1 / 1 !important;
+  display: grid !important;
+  place-items: center !important;
+  border-radius: 999px !important;
+  overflow: hidden !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.12), transparent 36%),
+    radial-gradient(circle at 50% 50%, rgba(15, 23, 42, 0.92), rgba(2, 6, 23, 0.98) 68%) !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  box-shadow:
+    inset 0 0 20px rgba(0, 0, 0, 0.72),
+    0 0 22px rgba(56, 189, 248, 0.08) !important;
+}
+
+.compass-ring {
+  position: absolute !important;
+  inset: 0.55rem !important;
+  border-radius: 999px !important;
+  border: 1px solid rgba(148, 163, 184, 0.18) !important;
+  transition: transform 220ms ease-out !important;
+  will-change: transform !important;
+}
+
+.compass-ring::before {
+  position: absolute !important;
+  inset: 0.75rem !important;
+  content: '' !important;
+  border-radius: 999px !important;
+  border: 1px dashed rgba(148, 163, 184, 0.2) !important;
+}
+
+.compass-dir {
+  position: absolute !important;
+  left: 50% !important;
+  top: 50% !important;
+  display: grid !important;
+  min-width: 1.7rem !important;
+  height: 1.2rem !important;
+  place-items: center !important;
+  color: #94a3b8 !important;
+  font-family: 'Orbitron', 'Rajdhani', Inter, system-ui, sans-serif !important;
+  font-size: 0.68rem !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.08em !important;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.8) !important;
+}
+
+.compass-n {
+  color: #f8fafc !important;
+  transform: translate(-50%, -50%) rotate(0deg) translateY(-3.85rem) rotate(0deg) !important;
+}
+
+.compass-ne {
+  transform: translate(-50%, -50%) rotate(45deg) translateY(-3.85rem) rotate(-45deg) !important;
+}
+
+.compass-e {
+  transform: translate(-50%, -50%) rotate(90deg) translateY(-3.85rem) rotate(-90deg) !important;
+}
+
+.compass-se {
+  transform: translate(-50%, -50%) rotate(135deg) translateY(-3.85rem) rotate(-135deg) !important;
+}
+
+.compass-s {
+  transform: translate(-50%, -50%) rotate(180deg) translateY(-3.85rem) rotate(-180deg) !important;
+}
+
+.compass-sw {
+  transform: translate(-50%, -50%) rotate(225deg) translateY(-3.85rem) rotate(-225deg) !important;
+}
+
+.compass-w {
+  transform: translate(-50%, -50%) rotate(270deg) translateY(-3.85rem) rotate(-270deg) !important;
+}
+
+.compass-nw {
+  transform: translate(-50%, -50%) rotate(315deg) translateY(-3.85rem) rotate(-315deg) !important;
+}
+
+.compass-fixed-arrow {
+  position: absolute !important;
+  top: 0.72rem !important;
+  left: 50% !important;
+  z-index: 4 !important;
+  width: 0 !important;
+  height: 0 !important;
+  transform: translateX(-50%) !important;
+  border-left: 0.52rem solid transparent !important;
+  border-right: 0.52rem solid transparent !important;
+  border-bottom: 1.18rem solid #38bdf8 !important;
+  filter: drop-shadow(0 0 12px rgba(56, 189, 248, 0.88)) !important;
+}
+
+.compass-center-dot {
+  position: absolute !important;
+  z-index: 3 !important;
+  width: 0.72rem !important;
+  height: 0.72rem !important;
+  border-radius: 999px !important;
+  background: #38bdf8 !important;
+  border: 2px solid rgba(248, 250, 252, 0.72) !important;
+  box-shadow: 0 0 14px rgba(56, 189, 248, 0.8) !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .compass-circle-wrap {
+    width: min(100%, 7.7rem) !important;
+  }
+
+  .compass-dir {
+    font-size: 0.58rem !important;
+  }
+
+  .compass-n {
+    transform: translate(-50%, -50%) rotate(0deg) translateY(-3.05rem) rotate(0deg) !important;
+  }
+
+  .compass-ne {
+    transform: translate(-50%, -50%) rotate(45deg) translateY(-3.05rem) rotate(-45deg) !important;
+  }
+
+  .compass-e {
+    transform: translate(-50%, -50%) rotate(90deg) translateY(-3.05rem) rotate(-90deg) !important;
+  }
+
+  .compass-se {
+    transform: translate(-50%, -50%) rotate(135deg) translateY(-3.05rem) rotate(-135deg) !important;
+  }
+
+  .compass-s {
+    transform: translate(-50%, -50%) rotate(180deg) translateY(-3.05rem) rotate(-180deg) !important;
+  }
+
+  .compass-sw {
+    transform: translate(-50%, -50%) rotate(225deg) translateY(-3.05rem) rotate(-225deg) !important;
+  }
+
+  .compass-w {
+    transform: translate(-50%, -50%) rotate(270deg) translateY(-3.05rem) rotate(-270deg) !important;
+  }
+
+  .compass-nw {
+    transform: translate(-50%, -50%) rotate(315deg) translateY(-3.05rem) rotate(-315deg) !important;
+  }
+}
+
+/* Right column: compass takes top/middle, weather moves to bottom */
+.right-info-zone {
+  grid-template-rows: minmax(0, 1.75fr) minmax(0, 1fr) !important;
+}
+
+@media (orientation: landscape) and (max-height: 520px) {
+  .right-info-zone {
+    grid-template-rows: minmax(0, 1.75fr) minmax(0, 1fr) !important;
+    gap: 0.5rem !important;
+  }
+
+  .compass-circle-wrap {
+    width: min(100%, 10rem) !important;
+  }
+}

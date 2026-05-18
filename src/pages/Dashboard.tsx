@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import { motion } from 'framer-motion';
 import { AccelerationPanel } from '../components/AccelerationPanel';
 import { BottomNav, type NavTab } from '../components/BottomNav';
-import { HeadingCard, PhoneTemperatureCard, WeatherCard } from '../components/DashboardInfoCards';
+import { HeadingCard, WeatherCard } from '../components/DashboardInfoCards';
 import { ForceGraphCard } from '../components/ForceGraphCard';
 import { MiniMetricCard } from '../components/MiniMetricCard';
 import { SafetyScoreGauge } from '../components/SafetyScoreGauge';
@@ -111,7 +111,7 @@ export function Dashboard() {
             <div className="right-info-zone">
               <HeadingCard heading={telemetry.heading} label={telemetry.headingLabel} />
               <WeatherCard weather={weather.weather} status={weather.status} />
-              <PhoneTemperatureCard />
+              {/*<PhoneTemperatureCard />*/}
             </div>
           </>
         ) : null}
